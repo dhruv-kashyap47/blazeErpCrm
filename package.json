@@ -1,0 +1,13 @@
+{
+  "name": "blaze-operations-portal",
+  "private": true,
+  "workspaces": ["server", "client"],
+  "scripts": {
+    "dev": "node node_modules/concurrently/dist/bin/concurrently.js \"npm run dev -w server\" \"npm run dev -w client\"",
+    "build": "npm run build -w server && npm run build -w client",
+    "db:generate": "npm run prisma:generate -w server",
+    "db:migrate": "npm run prisma:migrate -w server",
+    "db:seed": "npm run prisma:seed -w server"
+  },
+  "devDependencies": { "concurrently": "^9.1.2" }
+}
