@@ -14,7 +14,14 @@ productsRouter.get("/", async (req, res, next) => {
     const { page, limit, skip } = pagination(req.query as { page?: string; limit?: string });
     const search = String(req.query.search || "");
     const lowStock = req.query.lowStock === "true";
-    const where = { ...(search ? { OR: [{ name: { contains: search, mode: "insensitive" as const } }, { sku: { contains: search, mode: "insensitive" as const } }] } : {}), ...(lowStock ? { currentStock: { lte: 0 } } : {}) };
+    const where = search ? { OR: [{ name: { contains: search, mode: "insensitive" as const } }, { sku: { contains: search, mode: "insensitive" as const } }] } : {};
+    if (lowStock) {
+      const products = await prisma.product.findMany({ where, orderBy: { updatedAt: "desc" } });
+      const filtered = products.filter((product) => product.currentStock <= product.minimumStock);
+      const data = filtered.slice(skip, skip + limit);
+      const normalized = data.map((product) => ({ ...product, isLowStock: true }));
+      return res.json({ data: normalized, meta: { page, limit, total: filtered.length, pages: Math.ceil(filtered.length / limit) } });
+    }
     const [data, total] = await prisma.$transaction([prisma.product.findMany({ where, skip, take: limit, orderBy: { updatedAt: "desc" } }), prisma.product.count({ where })]);
     const normalized = data.map((product) => ({ ...product, isLowStock: product.currentStock <= product.minimumStock }));
     res.json({ data: normalized, meta: { page, limit, total, pages: Math.ceil(total / limit) } });

@@ -6,9 +6,9 @@
     "dev": "node ../node_modules/tsx/dist/cli.mjs watch src/index.ts",
     "build": "node ../node_modules/typescript/bin/tsc",
     "start": "node dist/index.js",
-    "prisma:generate": "node ../node_modules/prisma/build/index.js generate",
-    "prisma:migrate": "node ../node_modules/prisma/build/index.js migrate dev",
-    "prisma:seed": "node ../node_modules/tsx/dist/cli.mjs prisma/seed.ts"
+    "prisma:generate": "node --env-file=../.env ../node_modules/prisma/build/index.js generate",
+    "prisma:migrate": "node --env-file=../.env ../node_modules/prisma/build/index.js migrate dev",
+    "prisma:seed": "node --env-file=../.env ../node_modules/tsx/dist/cli.mjs prisma/seed.ts"
   },
   "prisma": { "seed": "tsx prisma/seed.ts" },
   "dependencies": {

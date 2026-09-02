@@ -35,8 +35,9 @@ challansRouter.get("/:id", async (req, res, next) => {
 challansRouter.post("/", authorize(Role.ADMIN, Role.SALES), async (req, res, next) => {
   try {
     const input = challanSchema.parse(req.body);
-    const products = await prisma.product.findMany({ where: { id: { in: input.items.map((item) => item.productId) }, isActive: true } });
-    if (products.length !== input.items.length) return res.status(422).json({ message: "One or more selected products are unavailable." });
+    const productIds = [...new Set(input.items.map((item) => item.productId))];
+    const products = await prisma.product.findMany({ where: { id: { in: productIds }, isActive: true } });
+    if (products.length !== productIds.length) return res.status(422).json({ message: "One or more selected products are unavailable." });
     const data = await prisma.challan.create({ data: { challanNumber: numberFor(), customerId: input.customerId, status: ChallanStatus.DRAFT, totalQuantity: input.items.reduce((sum, item) => sum + item.quantity, 0), createdById: req.user!.id, items: { create: input.items.map((item) => { const product = products.find((candidate) => candidate.id === item.productId)!; return { productId: product.id, productName: product.name, sku: product.sku, unitPrice: product.unitPrice, quantity: item.quantity }; }) } }, include });
     if (input.status === ChallanStatus.CONFIRMED) return res.status(201).json(await confirmChallan(data.id, req.user!.id));
     return res.status(201).json(data);
