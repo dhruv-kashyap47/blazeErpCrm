@@ -1,4 +1,3 @@
-import { FormEvent, useEffect, useState } from "react";
 import {
   Boxes,
   ChevronRight,
@@ -9,8 +8,8 @@ import {
   Plus,
   Search,
   Users,
-  Warehouse,
 } from "lucide-react";
+import { FormEvent, useEffect, useState } from "react";
 import { api, Challan, Customer, Product, User } from "./api";
 
 type View = "dashboard" | "customers" | "products" | "challans";
